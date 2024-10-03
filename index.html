@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Escala del viewport ajustada -->
+    <title>Monitor</title>
+    <link rel="icon" href="img/escudounipamplona.png" type="image/png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Estilos generales */
+        .container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 16px; /* Ajustado para un tamaño más pequeño */
+        }
+
+        .thermometer-wrapper, .gauge-wrapper {
+            margin: 16px; /* Ajustado para un tamaño más pequeño */
+            text-align: center;
+            flex: 1 1 160px; /* Tamaño flexible ajustado */
+            max-width: 200px; /* Máximo ancho para cada termómetro o gauge ajustado */
+        }
+
+        .thermometer-container {
+            width: 80px; /* Ajustado */
+            height: 240px; /* Ajustado */
+            background-color: #eee;
+            border-radius: 40px; /* Ajustado */
+            position: relative;
+            border: 2px solid #ccc;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .thermometer-level {
+            width: 100%;
+            border-radius: 40px 40px 0 0; /* Ajustado */
+            position: absolute;
+            bottom: 0;
+            height: 0%;
+            background-color: blue;
+            transition: height 0.5s, background-color 0.5s;
+        }
+
+        .temperature-box, .humidity-box {
+            background-color: #f0f0f0;
+            padding: 8px; /* Ajustado */
+            border-radius: 8px; /* Ajustado */
+            width: 100px; /* Ajustado */
+            margin: 8px auto; /* Ajustado */
+            font-size: 22px; /* Ajustado */
+            font-weight: bold;
+            border: 2px solid #ccc;
+        }
+
+        .title {
+            font-size: 16px; /* Ajustado */
+            font-weight: bold;
+            margin-bottom: 8px; /* Ajustado */
+        }
+
+        /* Estilo para los gauges */
+        .gauge-wrapper {
+            width: 160px; /* Ajustado */
+            height: 160px; /* Ajustado */
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            width: 100%;
+            height: 8vh;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;  /* Fijo en la parte superior */
+            top: 0;
+            left: 0;
+            z-index: 1000;  /* Para que quede sobre otros elementos */
+        }
+
+        /* Estilos para las imágenes */
+        .header-logo {
+            position: absolute;
+            height: 6vh; /* Tamaño de las imágenes */
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .logo-left {
+            left: 10px; /* Imagen a la izquierda */
+        }
+
+        .logo-right {
+            right: 10px; /* Imagen a la derecha */
+        }
+
+        /* Rectángulo naranja */
+        .orange-rectangle {
+            width: 100%;
+            height: 20px; /* Altura del rectángulo */
+            background-color: orange;
+        }
+
+        /* Resto de estilos */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Otros estilos de la página */
+
+
+
+
+        /* Evitar el redimensionamiento en dispositivos pequeños */
+        @media (max-width: 600px) {
+            .thermometer-container {
+                height: 160px; /* Ajustado */
+            }
+
+            .gauge-wrapper {
+                width: 120px; /* Ajustado */
+                height: 120px; /* Ajustado */
+            }
+
+            .temperature-box, .humidity-box {
+                width: 80px; /* Ajustado */
+                font-size: 18px; /* Ajustado */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Termómetros -->
+    <div class="thermometer-wrapper">
+        <div class="title">Temperatura a 20 cm</div>
+        <div class="thermometer-container">
+            <div class="thermometer-level" id="thermometerLevel1"></div>
+        </div>
+        <div class="temperature-box" id="temperatureLabel1">Cargando...</div>
+    </div>
+
+    <div class="thermometer-wrapper">
+        <div class="title">Temperatura a 30 cm</div>
+        <div class="thermometer-container">
+            <div class="thermometer-level" id="thermometerLevel2"></div>
+        </div>
+        <div class="temperature-box" id="temperatureLabel2">Cargando...</div>
+    </div>
+
+    <div class="thermometer-wrapper">
+        <div class="title">Temperatura a 40 cm</div>
+        <div class="thermometer-container">
+            <div class="thermometer-level" id="thermometerLevel3"></div>
+        </div>
+        <div class="temperature-box" id="temperatureLabel3">Cargando...</div>
+    </div>
+
+    <div class="thermometer-wrapper">
+        <div class="title">Temperatura a 50 cm</div>
+        <div class="thermometer-container">
+            <div class="thermometer-level" id="thermometerLevel4"></div>
+        </div>
+        <div class="temperature-box" id="temperatureLabel4">Cargando...</div>
+    </div>
+
+    <div class="thermometer-wrapper">
+        <div class="title">Temperatura ambiente</div>
+        <div class="thermometer-container">
+            <div class="thermometer-level" id="thermometerLevel5"></div>
+        </div>
+        <div class="temperature-box" id="temperatureLabel5">Cargando...</div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Gauges -->
+    <div class="gauge-wrapper">
+        <div class="title">Humedad en suelo a 15 cm</div>
+        <canvas id="gauge1"></canvas>
+        <div class="humidity-box" id="humidityLabel1">Cargando...</div>
+    </div>
+
+    <div class="gauge-wrapper">
+        <div class="title">Humedad en suelo a 30 cm</div>
+        <canvas id="gauge2"></canvas>
+        <div class="humidity-box" id="humidityLabel2">Cargando...</div>
+    </div>
+
+    <div class="gauge-wrapper">
+        <div class="title">Humedad ambiente</div>
+        <canvas id="gauge3"></canvas>
+        <div class="humidity-box" id="humidityLabel3">Cargando...</div>
+    </div>
+</div>
+<header>
+    <!-- Imágenes en las esquinas del header -->
+    <img src="img/ayc.png" alt="Logo Izquierdo" class="header-logo logo-left">
+    Monitoreo de Variables Ambientales y del Suelo para Optimización en Agricultura de Precisión
+    <img src="img/escudounipamplona.png" alt="Logo Derecho" class="header-logo logo-right">
+</header>
+
+<script>
+    // Función para obtener datos de ThingSpeak
+    function getTemperature(field, levelId, labelId) {
+        const apiKey = 'SCTAD51YM0EBWQ57'; // Tu API Key de ThingSpeak
+        const channelId = '2662833'; // El ID de tu canal
+        
+        const url = `https://api.thingspeak.com/channels/${channelId}/fields/${field}/last.json`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const temperature = parseFloat(data[`field${field}`]);
+                updateThermometer(temperature, levelId, labelId);
+            })
+            .catch(error => console.error('Error al obtener los datos:', error));
+    }
+
+    // Función para actualizar un termómetro específico
+    function updateThermometer(temperature, levelId, labelId) {
+        const level = document.getElementById(levelId);
+        const label = document.getElementById(labelId);
+
+        const percentage = Math.min(Math.max((temperature + 20) / 80, 0), 1) * 100;
+
+        level.style.height = percentage + '%';
+        if (temperature < 10) {
+            level.style.backgroundColor = 'blue';
+        } else if (temperature < 25) {
+            level.style.backgroundColor = 'green';
+        } else if (temperature < 35) {
+            level.style.backgroundColor = 'yellow';
+        } else {
+            level.style.backgroundColor = 'red';
+        }
+
+        label.textContent = temperature.toFixed(1) + ' °C';
+    }
+
+    function updateAllThermometers() {
+        getTemperature(2, 'thermometerLevel1', 'temperatureLabel1');
+        getTemperature(4, 'thermometerLevel2', 'temperatureLabel2');
+        getTemperature(1, 'thermometerLevel3', 'temperatureLabel3');
+        getTemperature(3, 'thermometerLevel4', 'temperatureLabel4');
+        getTemperature(8, 'thermometerLevel5', 'temperatureLabel5');
+    }
+
+    updateAllThermometers();
+    setInterval(updateAllThermometers, 15000);
+
+    // Función para actualizar los gauges
+    function updateGauge(field, gauge, labelId) {
+        const channelId = '2662833';
+        const url = `https://api.thingspeak.com/channels/${channelId}/fields/${field}/last.json`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const humidity = parseFloat(data[`field${field}`]);
+                gauge.data.datasets[0].data = [humidity, 100 - humidity];
+                gauge.update();
+                
+                // Actualizar el label de humedad
+                const humidityLabel = document.getElementById(labelId);
+                humidityLabel.textContent = humidity.toFixed(1) + ' %';
+            })
+            .catch(error => console.error('Error al obtener los datos:', error));
+    }
+
+    // Inicializar los gauges con Chart.js
+    function createGauge(ctx) {
+        return new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [0, 100],
+                    backgroundColor: ['#00aaff', '#e0e0e0'],
+                    borderWidth: 0,
+                }]
+            },
+            options: {
+                circumference: 180,
+                rotation: -90,
+                cutout: '70%',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        enabled: false
+                    }
+                }
+            }
+        });
+    }
+
+    const gauge1 = createGauge(document.getElementById('gauge1').getContext('2d'));
+    const gauge2 = createGauge(document.getElementById('gauge2').getContext('2d'));
+    const gauge3 = createGauge(document.getElementById('gauge3').getContext('2d'));
+
+    function updateAllGauges() {
+        updateGauge(5, gauge1, 'humidityLabel1');
+        updateGauge(6, gauge2, 'humidityLabel2');
+        updateGauge(7, gauge3, 'humidityLabel3');
+    }
+
+    updateAllGauges();
+    setInterval(updateAllGauges, 15000);
+</script>
+
+</body>
+</html>
+
+
