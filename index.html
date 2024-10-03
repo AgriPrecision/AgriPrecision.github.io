@@ -12,9 +12,13 @@
             display: flex;
             justify-content: space-around;
             flex-wrap: wrap;
-            gap: 16px; /* Ajustado para un tamaño más pequeño */
+            gap: 16px;
+            padding: 1px;
+            box-sizing: border-box;
+            margin-top: 50px; /* Espacio adicional si es necesario */
         }
 
+        
         .thermometer-wrapper, .gauge-wrapper {
             margin: 16px; /* Ajustado para un tamaño más pequeño */
             text-align: center;
@@ -62,8 +66,8 @@
 
         /* Estilo para los gauges */
         .gauge-wrapper {
-            width: 160px; /* Ajustado */
-            height: 160px; /* Ajustado */
+            width: 100px; /* Ajustado */
+            height: 100px; /* Ajustado */
         }
 
         canvas {
@@ -74,18 +78,20 @@
         /* Header */
         header {
             width: 100%;
-            height: 8vh;
+            height: 8vh; /* Mantiene una altura fija basada en el viewport */
             background-color: #4CAF50;
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.5vw; /* Tamaño de fuente en unidades relativas */
             font-weight: bold;
             display: flex;
             justify-content: center;
             align-items: center;
-            position: fixed;  /* Fijo en la parte superior */
+            position: fixed; /* Fijo en la parte superior */
             top: 0;
             left: 0;
-            z-index: 1000;  /* Para que quede sobre otros elementos */
+            z-index: 1000; /* Para que quede sobre otros elementos */
+            padding: 0 10px; /* Agregar padding lateral para un mejor ajuste */
+            box-sizing: border-box; /* Asegúrate de que el padding no afecte la anchura total */
         }
 
         /* Estilos para las imágenes */
@@ -117,13 +123,16 @@
             font-family: Arial, sans-serif;
         }
 
-        .container {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            gap: 16px;
-            padding: 20px;
-            box-sizing: border-box;
+        /* Contenedor para termómetros y gauges */
+        #button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
         }
 
         /* Otros estilos de la página */
@@ -145,6 +154,9 @@
             .temperature-box, .humidity-box {
                 width: 80px; /* Ajustado */
                 font-size: 18px; /* Ajustado */
+            }
+            .header {
+                font-size: 4vw; /* Ajusta el tamaño de la fuente en pantallas pequeñas */
             }
         }
     </style>
@@ -329,7 +341,17 @@
     setInterval(updateAllGauges, 15000);
 </script>
 
+    <button id="button" onclick="redirectToPage('https://thingspeak.com/channels/2662833/feed.csv')">Descargar datos</button>
+    <script>
+        function redirectToPage(url) {
+            window.location.href = url;
+        }
+    </script>
+
 </body>
 </html>
+
+
+
 
 
